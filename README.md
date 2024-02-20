@@ -1,12 +1,12 @@
 <div align="center">
 
-[![logo](https://raw.githubusercontent.com/tinygrad/tinygrad/master/docs/logo.png)](https://tinygrad.org)
+![logo](https://raw.githubusercontent.com/lsch0lz/counterfactuals/feature/initial-setup/docs/counterfactuals.jpg)
 
 Counterfactuals: Take the uncertainty out of your machine learning models
 
 <h3>
 
-[Documentation](/docs) | [Examples](/examples) | [Showcase](/docs/showcase.md) | [Discord](https://discord.gg/ZjZadyC7PK)
+[Documentation](/docs) | [Examples](/examples) | [Showcase](/docs/showcase.md)
 
 </h3>
 
