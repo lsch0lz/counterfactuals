@@ -1,1 +1,1 @@
-from add import add
+from counterfactual_xai.add import Add
