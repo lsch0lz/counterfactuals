@@ -2,7 +2,7 @@ from pathlib import Path
 
 from setuptools import setup, find_packages
 
-VERSION = "0.0.1"
+VERSION = "0.0.4"
 DESCRIPTION = "Remove uncertainty from your machine learning models"
 
 directory = Path(__file__).resolve().parent
@@ -17,6 +17,7 @@ setup(
     author="Lukas Scholz",
     description=DESCRIPTION,
     long_description=long_description,
+    long_description_content_type='text/markdown',
     packages=find_packages(),
     install_requires=["numpy", "tqdm", "torch"],
 

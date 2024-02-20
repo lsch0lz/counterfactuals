@@ -30,7 +30,7 @@ Model Paper: [CLUE: A Method for Explaining Uncertainty Estimates](https://arxiv
 
 ## Installation
 
-The current recommended way to install tinygrad is from source.
+The current recommended way to install counterfactual is from source.
 
 ### From source
 
