@@ -33,6 +33,8 @@ setup(
         "pre-commit",
         "ruff",
         "types-tqdm",
-    ]
+    ],
+        'testing': [
+            "pytest"]
     }
 )
