@@ -22,6 +22,9 @@ With those insights you are able to eliminate uncertainties and make better deci
 
 ### CLUE: A Method for Explaining Uncertainty Estimates
 
+CLUE is a method for explaining uncertainty estimates of machine learning models. It is based on the idea of counterfactuals and provides a comprehensive understanding of the model's predictions.
+Model Paper: [CLUE: A Method for Explaining Uncertainty Estimates](https://arxiv.org/abs/2006.06848)
+
 
 
 ## Installation
