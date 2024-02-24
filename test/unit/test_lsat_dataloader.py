@@ -1,11 +1,12 @@
 import os.path
 import unittest
+from pathlib import Path
 
 from counterfactual_xai.utils.lsat_dataloader import LsatDataloader
 
 
 class TestLsatDataloader(unittest.TestCase):
-    DATA_DIR = "./../../data/"
+    DATA_DIR = str(Path(__file__).parents[2].resolve()) + "/data/"
     INPUT_DIM_VEC = [1, 1, 8, 2]
 
     def test_if_test_and_train_file_is_downloaded(self):
