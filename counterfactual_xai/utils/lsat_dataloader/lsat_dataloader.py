@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
+logger = logging.getLogger(__name__)
+
 
 class LsatDataloader:
     LSAT_TEST_FILE = "law_school_cf_test.csv"
@@ -30,6 +32,7 @@ class LsatDataloader:
 
     def _download_lsat_from_github(self, file: str):
         downloadfile = self.LSAT_TEST_FILE if file == "test" else self.LSAT_TRAIN_FILE
+        logger.info("Requesting %s file from Github", downloadfile)
         with requests.Session() as s:
             download = s.get(self.DOWNLOAD_ADRESS + downloadfile)
             decoded_content = download.content.decode('utf-8')
@@ -42,18 +45,20 @@ class LsatDataloader:
 
     def _check_for_local_lsat_files(self):
         if not os.path.isfile(self.csv_path + self.LSAT_TEST_FILE):
+            logger.info("No File found, downloading from Github")
             self._download_lsat_from_github(file="test")
 
         if not os.path.isfile(self.csv_path + self.LSAT_TRAIN_FILE):
+            logger.info("No File found, downloading from Github")
             self._download_lsat_from_github(file="train")
 
     def get_lsat_dataset(self):
         self._check_for_local_lsat_files()
 
+        logger.info("Formatting Dataframes")
         df_train: DataFrame = pd.read_csv(self.csv_path + self.LSAT_TRAIN_FILE)
         data_train = df_train.to_dict("list")
         train_keys = list(data_train.keys())
-        logging.info("Train Keys: %s", train_keys)
 
         df_test: DataFrame = pd.read_csv(self.csv_path + self.LSAT_TEST_FILE)
         data_test = df_test.to_dict("list")
