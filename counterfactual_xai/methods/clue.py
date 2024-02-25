@@ -1,0 +1,2 @@
+class CLUE:
+    pass
