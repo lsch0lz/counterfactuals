@@ -6,7 +6,7 @@ from counterfactual_xai.utils.lsat_dataloader import LsatDataloader
 
 
 class TestLsatDataloader(unittest.TestCase):
-    DATA_DIR = str(Path(__file__).parents[2].resolve()) + "/data/"
+    DATA_DIR = str(Path(__file__).parents[1].resolve()) + "/data/"
     INPUT_DIM_VEC = [1, 1, 8, 2]
 
     def test_if_data_has_the_right_shape_after_trainsformation(self):
@@ -18,6 +18,3 @@ class TestLsatDataloader(unittest.TestCase):
 
         assert y_train.shape == (17432, 1)
         assert y_test.shape == (4358, 1)
-
-        os.remove(self.DATA_DIR + "law_school_cf_test.csv")
-        os.remove(self.DATA_DIR + "law_school_cf_train.csv")
