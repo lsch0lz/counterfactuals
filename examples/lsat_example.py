@@ -1,5 +1,6 @@
 from counterfactual_xai.utils.clue.bnn.gaussian_bnn import GaussianBNN
 from counterfactual_xai.utils.clue.gaussian_mlp import GaussianMLP
+from counterfactual_xai.utils.clue.vae.gaussian_vae import GaussianVAE
 from counterfactual_xai.utils.datafeed import DataFeed
 from counterfactual_xai.utils.lsat_dataloader import LsatDataloader
 
@@ -29,3 +30,12 @@ N_train = x_train.shape[0]
 
 bnn_gauss = GaussianBNN(mlp_gauss, N_train, lr=learning_rate, cuda=cuda)
 bnn_gauss.load_weights(save_dir)
+
+width = 300
+depth = 3
+latent_dim = 4
+
+print('gauss_cat')
+lr = 1e-4
+VAE = GaussianVAE(input_dims, width, depth, latent_dim, pred_sig=False,
+                        lr=lr, cuda=cuda, flatten=False)
