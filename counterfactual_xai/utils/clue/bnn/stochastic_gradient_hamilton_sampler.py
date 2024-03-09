@@ -60,8 +60,7 @@ class StochasticHamiltonMonteCarloSampler(Optimizer):
                     state["tau"] = torch.ones_like(p)
                     state["g"] = torch.ones_like(p)
                     state["V_hat"] = torch.ones_like(p)
-                    state["v_momentum"] = torch.zeros_like(
-                        p)  # p.data.new(p.data.size()).normal_(mean=0, std=np.sqrt(group["lr"])) #
+                    state["v_momentum"] = torch.zeros_like(p)
                     state['weight_decay'] = self.weight_decay
 
                 state["iteration"] += 1  # this is kind of useless now but lets keep it provisionally
@@ -70,7 +69,6 @@ class StochasticHamiltonMonteCarloSampler(Optimizer):
                     alpha = self.alpha0 + p.data.nelement() / 2
                     beta = self.beta0 + (p.data ** 2).sum().item() / 2
                     gamma_sample = gamma(shape=alpha, scale=1 / (beta), size=None)
-                    #                     print('std', 1/np.sqrt(gamma_sample))
                     state['weight_decay'] = gamma_sample
 
                 base_C, lr = group["base_C"], group["lr"]
@@ -83,8 +81,7 @@ class StochasticHamiltonMonteCarloSampler(Optimizer):
 
                 # update parameters during burn-in
                 if burn_in:  # We update g first as it makes most sense
-                    tau.add_(-tau * (g ** 2) / (
-                                V_hat + self.eps) + 1)  # specifies the moving average window, see Eq 9 in [1] left
+                    tau.add_(-tau * (g ** 2) / (V_hat + self.eps) + 1)  # specifies the moving average window, see Eq 9 in [1] left
                     tau_inv = 1. / (tau + self.eps)
                     g.add_(-tau_inv * g + tau_inv * d_p)  # average gradient see Eq 9 in [1] right
                     V_hat.add_(-tau_inv * V_hat + tau_inv * (d_p ** 2))  # gradient variance see Eq 8 in [1]
@@ -93,8 +90,7 @@ class StochasticHamiltonMonteCarloSampler(Optimizer):
                 V_inv_sqrt = 1. / (V_sqrt + self.eps)  # preconditioner
 
                 if resample_momentum:  # equivalent to var = M under momentum reparametrisation
-                    state["v_momentum"] = torch.normal(mean=torch.zeros_like(d_p),
-                                                       std=torch.sqrt((lr ** 2) * V_inv_sqrt))
+                    state["v_momentum"] = torch.normal(mean=torch.zeros_like(d_p), std=torch.sqrt((lr ** 2) * V_inv_sqrt))
                 v_momentum = state["v_momentum"]
 
                 noise_var = (2. * (lr ** 2) * V_inv_sqrt * base_C - (lr ** 4))

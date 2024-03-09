@@ -20,8 +20,8 @@ class GaussianBNN(BaseNet):
         self.cuda = cuda
 
         self.N_train = N_train
-        self.create_network()
-        self.create_optimizer()
+        self._create_network()
+        self._create_optimizer()
         self.schedule = None  # [] #[50,200,400,600]
         self.epoch = 0
 
@@ -32,7 +32,7 @@ class GaussianBNN(BaseNet):
 
         self.weight_set_samples = []
 
-    def create_network(self):
+    def _create_network(self):
         torch.manual_seed(42)
         if self.cuda:
             torch.cuda.manual_seed(42)
@@ -43,7 +43,7 @@ class GaussianBNN(BaseNet):
 
         print('Total params: %.2fM' % (self.get_nb_parameters() / 1000000.0))
 
-    def create_optimizer(self):
+    def _create_optimizer(self):
         self.optimizer = StochasticHamiltonMonteCarloSampler(params=self.model.parameters(), lr=self.lr, base_C=0.05, gauss_sig=0.1)
 
     def fit(self, x, y, burn_in=False, resample_momentum=False, resample_prior=False):
@@ -103,10 +103,10 @@ class GaussianBNN(BaseNet):
 
         return None
 
-    def sample_predict(self, x, Nsamples, grad=False):
+    def sample_predict(self, x, num_samples, grad=False):
         self.set_model_mode(train=False)
-        if Nsamples == 0:
-            Nsamples = len(self.weight_set_samples)
+        if num_samples == 0:
+            num_samples = len(self.weight_set_samples)
 
         x, = variable_to_tensor_list(variables=(x,), cuda=self.cuda)
 
@@ -115,12 +115,12 @@ class GaussianBNN(BaseNet):
             if not x.requires_grad:
                 x.requires_grad = True
 
-        mu_vec = x.data.new(Nsamples, x.shape[0], self.model.output_dim)
-        std_vec = x.data.new(Nsamples, x.shape[0], self.model.output_dim)
+        mu_vec = x.data.new(num_samples, x.shape[0], self.model.output_dim)
+        std_vec = x.data.new(num_samples, x.shape[0], self.model.output_dim)
 
         # iterate over all saved weight configuration samples
         for idx, weight_dict in enumerate(self.weight_set_samples):
-            if idx == Nsamples:
+            if idx == num_samples:
                 break
             self.model.load_state_dict(weight_dict)
             mu_vec[idx], std_vec[idx] = self.model(x)
