@@ -3,6 +3,8 @@ from torch.distributions import Normal
 from torch.nn.functional import softplus
 import torch.nn.functional as F
 
+suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+
 
 def normal_parse_params(params, min_sigma=1e-3):
     """
@@ -114,3 +116,12 @@ def selective_softmax(x, input_dim_vec, grad=False, cat_probs=False, prob_sample
         else:
             raise ValueError('Error, invalid dimension value')
     return output
+
+
+def humansize(nbytes):
+    i = 0
+    while nbytes >= 1024 and i < len(suffixes) - 1:
+        nbytes /= 1024.
+        i += 1
+    f = ('%.2f' % nbytes)
+    return '%s%s' % (f, suffixes[i])
