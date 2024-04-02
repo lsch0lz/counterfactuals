@@ -1,11 +1,15 @@
+import numpy as np
 import torch
 from torch import nn
 from torch.backends import cudnn
+from torch.distributions import kl_divergence
 from torch.optim import RAdam
 from torch.distributions.normal import Normal
 
 from counterfactual_xai.utils.base_model import BaseNet
-from counterfactual_xai.utils.clue.vae.models import MLPPreactRecognitionNetwork, MLPPreactGeneratorNetwork
+from counterfactual_xai.utils.clue.bnn.utils import variable_to_tensor_list
+from counterfactual_xai.utils.clue.vae.models import MLPPreactRecognitionNetwork, MLPPreactGeneratorNetwork, RMSCatLoglike
+from counterfactual_xai.utils.clue.vae.utils import gauss_cat_to_flat, flat_to_gauss_cat, normal_parse_params, selective_softmax
 
 
 class VAEGaussianCat(nn.Module):
@@ -22,7 +26,7 @@ class VAEGaussianCat(nn.Module):
             raise NotImplementedError()
         else:
             self.decoder = MLPPreactGeneratorNetwork(input_dim, width, depth, latent_dim)
-            self.rec_loglike = rms_cat_loglike(self.input_dim_vec, reduction='none')
+            self.rec_loglike = RMSCatLoglike(self.input_dim_vec, reduction='none')
         self.pred_sig = pred_sig
 
     def encode(self, x):
@@ -70,7 +74,7 @@ class VAEGaussianCat(nn.Module):
 
 
 class GaussianVAE(BaseNet):
-    def __init__(self, input_dim_vec, width, depth, latent_dim, pred_sig=False, lr=1e-3, cuda=True, flatten=True):
+    def  __init__(self, input_dim_vec, width, depth, latent_dim, pred_sig=False, lr=1e-3, cuda=True, flatten=True):
         super(GaussianVAE, self).__init__()
 
         self.cuda = cuda
@@ -112,7 +116,7 @@ class GaussianVAE(BaseNet):
         self.optimizer = RAdam(self.model.parameters(), lr=self.lr)
 
     def fit(self, x):
-        self.set_mode_train(train=True)
+        self.set_model_mode(train=True)
 
         if self.flatten:
             x_flat = gauss_cat_to_flat(x, self.input_dim_vec)
@@ -120,7 +124,7 @@ class GaussianVAE(BaseNet):
             x_flat = x
             x = flat_to_gauss_cat(x, self.input_dim_vec)
 
-        x, x_flat = to_variable(var=(x, x_flat), cuda=self.cuda)
+        x, x_flat = variable_to_tensor_list(variables=(x, x_flat), cuda=self.cuda)
         self.optimizer.zero_grad()
 
         approx_post = self.model.encode(x_flat)
@@ -136,7 +140,7 @@ class GaussianVAE(BaseNet):
         return vlb.mean().item(), rec_params
 
     def eval(self, x, sample=False):
-        self.set_mode_train(train=False)
+        self.set_model_mode(train=False)
 
         if self.flatten:
             x_flat = gauss_cat_to_flat(x, self.input_dim_vec)
@@ -144,7 +148,7 @@ class GaussianVAE(BaseNet):
             x_flat = x
             x = flat_to_gauss_cat(x, self.input_dim_vec)
 
-        x, x_flat = to_variable(var=(x, x_flat), cuda=self.cuda)
+        x, x_flat = variable_to_tensor_list(variables=(x, x_flat), cuda=self.cuda)
         approx_post = self.model.encode(x_flat)
         if sample:
             z_sample = approx_post.sample()
@@ -157,14 +161,14 @@ class GaussianVAE(BaseNet):
         return vlb.mean().item(), rec_params
 
     def eval_iw(self, x, k=50):
-        self.set_mode_train(train=False)
+        self.set_model_mode(train=False)
         if self.flatten:
             x_flat = gauss_cat_to_flat(x, self.input_dim_vec)
         else:
             x_flat = x
             x = flat_to_gauss_cat(x, self.input_dim_vec)
 
-        x, x_flat = to_variable(var=(x, x_flat), cuda=self.cuda)
+        x, x_flat = variable_to_tensor_list(variables=(x, x_flat), cuda=self.cuda)
 
         approx_post = self.model.recognition_encode(x)
 
@@ -176,26 +180,26 @@ class GaussianVAE(BaseNet):
             flatten = self.flatten
         if flatten and grad:
             raise Exception('flatten and grad options are not compatible')
-        self.set_mode_train(train=False)
+        self.set_model_mode(train=False)
         if flatten:
             x = gauss_cat_to_flat(x, self.input_dim_vec)
         if grad:
             if not x.requires_grad:
                 x.requires_grad = True
         else:
-            x, = to_variable(var=(x,), volatile=True, cuda=self.cuda)
+            x, = variable_to_tensor_list(variables=(x,), volatile=True, cuda=self.cuda)
         approx_post = self.model.encode(x)
         return approx_post
 
     def regenerate(self, z, grad=False, unflatten=False):
         if unflatten and grad:
             raise Exception('flatten and grad options are not compatible')
-        self.set_mode_train(train=False)
+        self.set_model_mode(train=False)
         if grad:
             if not z.requires_grad:
                 z.requires_grad = True
         else:
-            z, = to_variable(var=(z,), volatile=True, cuda=self.cuda)
+            z, = variable_to_tensor_list(variables=(z,), volatile=True, cuda=self.cuda)
         out = self.model.decode(z)
 
         if unflatten:
