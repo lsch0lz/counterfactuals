@@ -32,9 +32,9 @@ class BaseNet:
             'model': self.model,
             'optimizer': self.optimizer}, filename)
 
-    def load(self, filename):
+    def load(self, filename, device: str):
         logging.info("Loading: %s", filename)
-        state_dict = torch.load(filename)
+        state_dict = torch.load(filename, map_location=device)
         self.epoch = state_dict['epoch']
         self.lr = state_dict['lr']
         self.model = state_dict['model']

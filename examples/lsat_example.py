@@ -5,9 +5,10 @@ from counterfactual_xai.utils.datafeed import DataFeed
 from counterfactual_xai.utils.lsat_dataloader import LsatDataloader
 
 CSV_PATH = "./../data/"
-save_dir = "/Users/lukasscholz/repositorys/CLUE/notebooks/saves/fc_BNN_NEW_ART_lsat_models/state_dicts.pkl"
+save_dir = "./../data/saves/_models/state_dicts.pkl"
 
 cuda = False
+device: str = "cuda" if cuda else "cpu"
 learning_rate = 1e-2
 
 
@@ -39,3 +40,5 @@ print('gauss_cat')
 lr = 1e-4
 VAE = GaussianVAE(input_dims, width, depth, latent_dim, pred_sig=False,
                         lr=lr, cuda=cuda, flatten=False)
+
+VAE.load(filename="./../data/saves/_models/theta_best.dat", device=device)
