@@ -9,7 +9,6 @@ class BaseNet:
         return np.sum(p.numel() for p in self.model.parameters())
 
     def set_model_mode(self, train=True):
-        logging.info("Setting Model Mode to Train: %s", train)
         if train:
             self.model.train()
         else:

@@ -1,4 +1,5 @@
 import copy
+import logging
 
 import numpy as np
 import torch
@@ -10,6 +11,9 @@ from counterfactual_xai.utils.clue.bnn.stochastic_gradient_hamilton_sampler impo
 from counterfactual_xai.utils.clue.bnn.utils import variable_to_tensor_list, diagonal_gauss_loglike, gaussian_mixture_model_loglike, \
     get_root_mean_square, \
     save_object, load_object
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 
 class GaussianBNN(BaseNet):
@@ -101,9 +105,18 @@ class GaussianBNN(BaseNet):
 
         self.weight_set_samples.append(copy.deepcopy(self.model.state_dict()))
 
+        logger.warning(f"Saving Samples: {len(self.weight_set_samples)} for Max Samples: {max_samples}")
+        logger.warning(f"Samples: {self.weight_set_samples}")
+
         return None
 
     def sample_predict(self, x, num_samples, grad=False):
+        # self.weight_set_samples seems to be empty, thus num_samples = 0
+        # mu_vec and std_vec have the shape of (0, 2048, 1) --> shouldn't be 0 I think
+        # iterating over self.weight_set_samples isn't possible, because it's 0
+        # model is not loaded because of this
+        # mu_vec and std_vec are zero after loop, thus error in Line 144 (mu_vec has no indices)
+        # TODO: Train BNN on 2200 Epochs
         self.set_model_mode(train=False)
         if num_samples == 0:
             num_samples = len(self.weight_set_samples)
@@ -128,6 +141,7 @@ class GaussianBNN(BaseNet):
         if grad:
             return mu_vec[:idx], std_vec[:idx]
         else:
+            # TODO: Here idx error
             return mu_vec[:idx].data, std_vec[:idx].data
 
     def get_weight_samples(self, Nsamples=0):
