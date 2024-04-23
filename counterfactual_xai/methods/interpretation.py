@@ -20,7 +20,7 @@ def latent_project_gauss(BNN, VAE, dset, batch_size=1024, cuda=True, prob_BNN=Tr
     tr_epistemic_vec = []
 
     for j, (x, y_l) in enumerate(loader):
-        zz = VAE.recongnition(x).loc.data.cpu().numpy()
+        zz = VAE.recongnition(x).loc.detach().cpu().numpy()
         # Note that naming is wrong and this is actually std instead of entropy
         if prob_BNN:
             mu_vec, std_vec = BNN.sample_predict(x, 0, False)
@@ -31,15 +31,15 @@ def latent_project_gauss(BNN, VAE, dset, batch_size=1024, cuda=True, prob_BNN=Tr
             aleatoric_entropy = std
             epistemic_entropy = std * 0
 
-        tr_epistemic_vec.append(epistemic_entropy.data)
-        tr_aleatoric_vec.append(aleatoric_entropy.data)
+        tr_epistemic_vec.append(epistemic_entropy)
+        tr_aleatoric_vec.append(aleatoric_entropy)
 
         z_train.append(zz)
         y_train.append(y_l.numpy())
         x_train.append(x.numpy())
 
-    tr_aleatoric_vec = torch.cat(tr_aleatoric_vec).cpu().numpy()
-    tr_epistemic_vec = torch.cat(tr_epistemic_vec).cpu().numpy()
+    tr_aleatoric_vec = torch.cat(tr_aleatoric_vec).detach().cpu().numpy()
+    tr_epistemic_vec = torch.cat(tr_epistemic_vec).detach().cpu().numpy()
     z_train = np.concatenate(z_train)
     x_train = np.concatenate(x_train)
     y_train = np.concatenate(y_train)

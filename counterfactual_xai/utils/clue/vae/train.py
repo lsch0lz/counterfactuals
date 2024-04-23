@@ -88,8 +88,8 @@ def train_VAE(net, name, batch_size, nb_epochs, trainset, valset, cuda, flat_ims
                     o = o.loc.cpu()
                 if len(x.shape) == 2:
                     side = int(np.sqrt(x.shape[1]))
-                    x = x.view(-1, 1, side, side).data
-                    o = o.view(-1, 1, side, side).data
+                    x = x.view(-1, 1, side, side)
+                    o = o.view(-1, 1, side, side)
 
                 # save_image(torch.cat([x[:8], o[:8]]), results_dir + '/rec_%d.png' % i, nrow=8)
                 import matplotlib.pyplot as plt

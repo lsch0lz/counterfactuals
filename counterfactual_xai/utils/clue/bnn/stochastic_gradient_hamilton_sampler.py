@@ -66,8 +66,8 @@ class StochasticHamiltonMonteCarloSampler(Optimizer):
                 state["iteration"] = state["iteration"] + 1  # this is kind of useless now but lets keep it provisionally
 
                 if resample_prior:
-                    alpha = self.alpha0 + p.data.nelement() / 2
-                    beta = self.beta0 + (p.data ** 2).sum().item() / 2
+                    alpha = self.alpha0 + p.nelement() / 2
+                    beta = self.beta0 + (p ** 2).sum().item() / 2
                     gamma_sample = gamma(shape=alpha, scale=1 / (beta), size=None)
                     state['weight_decay'] = gamma_sample
 
@@ -75,16 +75,16 @@ class StochasticHamiltonMonteCarloSampler(Optimizer):
                 weight_decay = state["weight_decay"]
                 tau, g, V_hat = state["tau"], state["g"], state["V_hat"]
 
-                d_p = p.grad.data
+                d_p = p.grad
                 if weight_decay != 0:
-                    d_p.add_(weight_decay, p.data)
+                    d_p.add(weight_decay, p)
 
                 # update parameters during burn-in
                 if burn_in:  # We update g first as it makes most sense
-                    tau.add_(-tau * (g ** 2) / (V_hat + self.eps) + 1)  # specifies the moving average window, see Eq 9 in [1] left
+                    tau.add(-tau * (g ** 2) / (V_hat + self.eps) + 1)  # specifies the moving average window, see Eq 9 in [1] left
                     tau_inv = 1. / (tau + self.eps)
-                    g.add_(-tau_inv * g + tau_inv * d_p)  # average gradient see Eq 9 in [1] right
-                    V_hat.add_(-tau_inv * V_hat + tau_inv * (d_p ** 2))  # gradient variance see Eq 8 in [1]
+                    g.add(-tau_inv * g + tau_inv * d_p)  # average gradient see Eq 9 in [1] right
+                    V_hat.add(-tau_inv * V_hat + tau_inv * (d_p ** 2))  # gradient variance see Eq 8 in [1]
 
                 V_sqrt = torch.sqrt(V_hat)
                 V_inv_sqrt = 1. / (V_sqrt + self.eps)  # preconditioner
@@ -99,9 +99,10 @@ class StochasticHamiltonMonteCarloSampler(Optimizer):
                 noise_sample = torch.normal(mean=torch.zeros_like(d_p), std=torch.ones_like(d_p) * noise_std)
 
                 # update momentum (Eq 10 right in [1])
-                v_momentum.add_(- (lr ** 2) * V_inv_sqrt * d_p - base_C * v_momentum + noise_sample)
+                v_momentum.add(- (lr ** 2) * V_inv_sqrt * d_p - base_C * v_momentum + noise_sample)
 
                 # update theta (Eq 10 left in [1])
-                p.data.add_(v_momentum)
+                p.add(v_momentum)
+                # p.add_(v_momentum)
 
         return loss

@@ -85,7 +85,7 @@ class CLUE(BaseNet):
     def randomise_z_init(self, std):
         # assert (self.z.data == self.z_init).all()
         eps = torch.randn(self.z.shape).type(self.z.type())
-        self.z.data = std * eps + self.z_init
+        self.z = std * eps + self.z_init
         return None
 
     def pred_dist(self, preds):
@@ -174,7 +174,7 @@ class CLUE(BaseNet):
     def optimise(self, min_steps=3, max_steps=25,
                  n_early_stop=3):
         # Vectors to capture changes for this minibatch
-        z_vec = [self.z.data.cpu().numpy()]
+        z_vec = [self.z.detach().cpu().numpy()]
         x_vec = []
         uncertainty_vec = np.zeros((max_steps, self.z.shape[0]))
         aleatoric_vec = np.zeros((max_steps, self.z.shape[0]))
@@ -194,19 +194,20 @@ class CLUE(BaseNet):
             self.optimizer.step()
 
             # save vectors
-            uncertainty_vec[step_idx, :] = total_uncertainty.data.cpu().numpy()
-            aleatoric_vec[step_idx, :] = aleatoric_uncertainty.data.cpu().numpy()
-            epistemic_vec[step_idx, :] = epistemic_uncertainty.data.cpu().numpy()
-            dist_vec[step_idx, :] = (w_dist.data.cpu().numpy())
-            cost_vec[step_idx, :] = (objective.data.cpu().numpy())
-            x_vec.append(x.data)  # we dont convert to numpy yet because we need x0 for L1
-            z_vec.append(self.z.data.cpu().numpy())  # this one is after gradient update while x is before
+            uncertainty_vec[step_idx, :] = total_uncertainty.detach().cpu().numpy()
+            aleatoric_vec[step_idx, :] = aleatoric_uncertainty.detach().cpu().numpy()
+            epistemic_vec[step_idx, :] = epistemic_uncertainty.detach().cpu().numpy()
+            dist_vec[step_idx, :] = w_dist.detach().cpu().numpy()
+            cost_vec[step_idx, :] = objective.detach().cpu().numpy()
+            x_vec.append(x.cpu())  # We don't convert to numpy yet because we need x0 for L1
+            z_vec.append(self.z.detach().cpu().numpy())
+            # this one is after gradient update while x is before
 
             it_mask = CLUE.update_stopvec(cost_vec, it_mask, step_idx, n_early_stop, min_steps)
 
         #  Generate final (or resulting s sample)
 
-        x = self.VAE.regenerate(self.z, grad=False).data
+        x = self.VAE.regenerate(self.z, grad=False)
         x_vec.append(x)
         x_vec = [i.cpu().numpy() for i in x_vec]  # convert x to numpy
         x_vec = np.stack(x_vec)
@@ -318,7 +319,7 @@ class CLUE(BaseNet):
                 z_init_use = z_init
 
             if desired_preds is not None:
-                desired_preds_use = desired_preds[train_idx].data
+                desired_preds_use = desired_preds[train_idx]
             else:
                 desired_preds_use = desired_preds
 
@@ -388,7 +389,7 @@ class conditional_CLUE(CLUE):
     def optimise(self, min_steps=3, max_steps=25,
                  n_early_stop=3):
         # Vectors to capture changes for this minibatch
-        z_vec = [self.z.data.cpu().numpy()]
+        z_vec = [self.z.detach().cpu().numpy()]
         x_vec = []
         uncertainty_vec = np.zeros((max_steps, self.z.shape[0]))
         aleatoric_vec = np.zeros((max_steps, self.z.shape[0]))
@@ -407,19 +408,19 @@ class conditional_CLUE(CLUE):
             self.optimizer.step()
 
             # save vectors
-            uncertainty_vec[step_idx, :] = total_uncertainty.data.cpu().numpy()
-            aleatoric_vec[step_idx, :] = aleatoric_uncertainty.data.cpu().numpy()
-            epistemic_vec[step_idx, :] = epistemic_uncertainty.data.cpu().numpy()
-            dist_vec[step_idx, :] = (w_dist.data.cpu().numpy())
-            cost_vec[step_idx, :] = (objective.data.cpu().numpy())
-            x_vec.append(x.data)  # we dont convert to numpy yet because we need x0 for L1
-            z_vec.append(self.z.data.cpu().numpy())  # this one is after gradient update while x is before
+            uncertainty_vec[step_idx, :] = total_uncertainty.detach().cpu().numpy()
+            aleatoric_vec[step_idx, :] = aleatoric_uncertainty.detach().cpu().numpy()
+            epistemic_vec[step_idx, :] = epistemic_uncertainty.detach().cpu().numpy()
+            dist_vec[step_idx, :] = (w_dist.detach().cpu().numpy())
+            cost_vec[step_idx, :] = (objective.detach().cpu().numpy())
+            x_vec.append(x)  # we dont convert to numpy yet because we need x0 for L1
+            z_vec.append(self.z.cpu().numpy())  # this one is after gradient update while x is before
 
             it_mask = CLUE.update_stopvec(cost_vec, it_mask, step_idx, n_early_stop, min_steps)
 
         #  Generate final (or resulting s sample)
 
-        x = self.VAE.regenerate(self.z, grad=False).data
+        x = self.VAE.regenerate(self.z, grad=False)
         x = x * self.cond_mask + self.original_x * (1 - self.cond_mask)
         x_vec.append(x)
         x_vec = [i.cpu().numpy() for i in x_vec]  # convert x to numpy

@@ -175,7 +175,7 @@ def main():
 
     mu_vec, std_vec = bnn_gauss.sample_predict(x_init_batch, 0, grad=False)
     o_uncert, o_aleatoric, o_epistemic = decompose_std_gauss(mu_vec, std_vec)
-    desired_preds = mu_vec.mean(dim=0).cpu().numpy()
+    desired_preds = mu_vec.mean(dim=0).detach().cpu().numpy()
 
     CLUE_explainer = CLUE(VAE, bnn_gauss, x_init_batch, uncertainty_weight=uncertainty_weight,
                           aleatoric_weight=aleatoric_weight, epistemic_weight=epistemic_weight,
