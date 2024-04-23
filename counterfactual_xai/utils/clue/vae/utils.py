@@ -61,11 +61,11 @@ def flat_to_gauss_cat(x, input_dim_vec):
     for idx, dims in enumerate(input_dim_vec):
         if dims == 1:
             output.append(x[:, cum_dims].unsqueeze(1))
-            cum_dims += 1
+            cum_dims = cum_dims + 1
 
         elif dims > 1:
             output.append(x[:, cum_dims:cum_dims + dims].max(dim=1)[1].type(x.type()).unsqueeze(1))
-            cum_dims += dims
+            cum_dims = cum_dims + dims
 
         else:
             raise ValueError('Error, invalid dimension value')
@@ -85,7 +85,7 @@ def selective_softmax(x, input_dim_vec, grad=False, cat_probs=False, prob_sample
             if prob_sample:  # this assumes an rms loss when training
                 noise = x.new_zeros(x.shape[0]).normal_(mean=0, std=1)
                 output[:, cum_dims] = output[:, cum_dims] + noise
-            cum_dims += 1
+            cum_dims = cum_dims + 1
         elif dim > 1:
             if not cat_probs:
                 if not grad:
@@ -112,7 +112,7 @@ def selective_softmax(x, input_dim_vec, grad=False, cat_probs=False, prob_sample
                 else:
                     output[:, cum_dims:cum_dims + dim] = probs
 
-            cum_dims += dim
+            cum_dims = cum_dims + dim
         else:
             raise ValueError('Error, invalid dimension value')
     return output
@@ -122,6 +122,6 @@ def humansize(nbytes):
     i = 0
     while nbytes >= 1024 and i < len(suffixes) - 1:
         nbytes /= 1024.
-        i += 1
+        i = i + 1
     f = ('%.2f' % nbytes)
     return '%s%s' % (f, suffixes[i])
