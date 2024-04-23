@@ -1,7 +1,6 @@
 import torch
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 from counterfactual_xai.utils.clue.bnn.gaussian_bnn import GaussianBNN
 from counterfactual_xai.utils.clue.gaussian_mlp import GaussianMLP
@@ -68,13 +67,6 @@ def main():
     aleatoric_idxs_sorted = np.flipud(np.argsort(te_aleatoric_vec))
     epistemic_idxs_sorted = np.flipud(np.argsort(te_epistemic_vec))
 
-    plt.figure(dpi=80)
-    plt.hist(te_uncertainty_vec, density=True, alpha=0.5)
-    plt.hist(tr_uncertainty_vec, density=True, alpha=0.5)
-    plt.legend(['test', 'train'])
-    plt.ylabel('Uncertainty')
-    plt.show()
-
     dname = "lsat"
     var_names = {"lsat": ['LSAT', 'UGPA', 'race', 'sex']}
     var_names_flat = {
@@ -83,12 +75,6 @@ def main():
 
     var_N = 5
 
-    fig, axes = plt.subplots(1, 2, dpi=120)
-    # plt.figure(dpi=80)
-    axes[0].hist(x_train[:, var_N], density=True, alpha=0.5)
-    axes[0].hist(x_test[:, var_N], density=True, alpha=0.5)
-    axes[0].legend(['train', 'test'])
-    axes[0].set_title(var_names_flat[dname][var_N])
 
     bins = [-5, -4, -3, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 3, 4, 5]
     center_bins = ((np.array([0] + bins) + np.array(bins + [0])) / 2)[1:]
@@ -122,34 +108,6 @@ def main():
             epistemic_stds.append(epistemic_select.std())
 
     # plt.figure(dpi=80)
-    axes[1].errorbar(center_bins, bin_means, yerr=bin_stds, fmt='o')
-    axes[1].set_xlabel(var_names_flat[dname][var_N])
-    axes[1].set_ylabel('target var')
-
-    plt.tight_layout()
-
-    fig, axes = plt.subplots(1, 2, dpi=120)
-    # plt.figure(dpi=80)
-    axes[0].errorbar(center_bins, aleatoric_mean, yerr=aleatoric_stds, fmt='o')
-    axes[0].set_xlabel(var_names_flat[dname][var_N])
-    axes[0].set_ylabel('Aleatoric')
-    # plt.show()
-
-    # plt.figure(dpi=80)
-    axes[1].errorbar(center_bins, epistemic_mean, yerr=epistemic_stds, fmt='o')
-    axes[1].set_xlabel(var_names_flat[dname][var_N])
-    axes[1].set_ylabel('Epistemic')
-
-    plt.tight_layout()
-    # plt.show()
-
-    plt.figure(dpi=80)
-    plt.hist(te_aleatoric_vec)
-    plt.title('aleatoric')
-
-    plt.figure(dpi=80)
-    plt.hist(te_epistemic_vec)
-    plt.title('epistemic')
 
     use_index = uncertainty_idxs_sorted
 
@@ -189,21 +147,6 @@ def main():
     z_vec, x_vec, uncertainty_vec, epistemic_vec, aleatoric_vec, cost_vec, dist_vec = CLUE_explainer.optimise(
         min_steps=3, max_steps=35,
         n_early_stop=3)
-
-    fig, axes = plt.subplots(1, 3, dpi=130)
-    axes[0].plot(cost_vec.mean(axis=1))
-    axes[0].set_title('mean Cost')
-    axes[0].set_xlabel('iterations')
-
-    axes[1].plot(uncertainty_vec.mean(axis=1))
-    axes[1].set_title('mean Total Entropy')
-    axes[1].set_xlabel('iterations')
-
-    axes[2].plot(dist_vec.mean(axis=1))
-    axes[2].set_title('mean Ln Cost')
-    axes[2].set_xlabel('iterations')
-
-    plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.5, hspace=None)
 
 
 if __name__ == "__main__":
