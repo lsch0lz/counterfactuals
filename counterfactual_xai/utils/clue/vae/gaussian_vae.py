@@ -19,7 +19,7 @@ class VAEGaussianCat(nn.Module):
         input_dim = 0
         self.input_dim_vec = input_dim_vec
         for e in input_dim_vec:
-            input_dim += e
+            input_dim = input_dim + e
 
         self.encoder = MLPPreactRecognitionNetwork(input_dim, width, depth, latent_dim)
         if pred_sig:
@@ -81,7 +81,7 @@ class GaussianVAE(BaseNet):
         self.input_dim = 0
         self.input_dim_vec = input_dim_vec
         for e in self.input_dim_vec:
-            self.input_dim += e
+            self.input_dim = self.input_dim + e
         self.flatten = flatten
         if not self.flatten:
             pass
