@@ -19,7 +19,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     packages=find_packages(),
-    install_requires=["numpy", "tqdm", "torch", "requests", "pandas", "torchvision"],
+    install_requires=["numpy", "tqdm", "torch", "requests", "pandas", "torchvision", "matplotlib", "pandas"],
 
     keywords=['python'],
     classifiers=[
