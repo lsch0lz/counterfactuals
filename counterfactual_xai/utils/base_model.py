@@ -15,7 +15,7 @@ class BaseNet:
             self.model.eval()
 
     def update_lr(self, epoch, gamma=0.99):
-        self.epoch += 1
+        self.epoch = self.epoch + 1
         if self.schedule is not None:
             if len(self.schedule) == 0 or epoch in self.schedule:
                 self.lr *= gamma
