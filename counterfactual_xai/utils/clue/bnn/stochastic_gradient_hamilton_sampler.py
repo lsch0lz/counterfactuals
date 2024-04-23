@@ -63,7 +63,7 @@ class StochasticHamiltonMonteCarloSampler(Optimizer):
                     state["v_momentum"] = torch.zeros_like(p)
                     state['weight_decay'] = self.weight_decay
 
-                state["iteration"] += 1  # this is kind of useless now but lets keep it provisionally
+                state["iteration"] = state["iteration"] + 1  # this is kind of useless now but lets keep it provisionally
 
                 if resample_prior:
                     alpha = self.alpha0 + p.data.nelement() / 2
