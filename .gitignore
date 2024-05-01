@@ -160,3 +160,5 @@ cython_debug/
 .idea/
 /data/
 .DS_Store
+datalaw_school_cf_test.csv
+datalaw_school_cf_train.csv
