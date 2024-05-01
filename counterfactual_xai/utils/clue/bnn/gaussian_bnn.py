@@ -131,7 +131,10 @@ class GaussianBNN(BaseNet):
             if idx == num_samples:
                 break
             self.model.load_state_dict(weight_dict)
-            mu_vec[idx], std_vec[idx] = self.model(x)
+            mu, std = self.model(x)
+
+            mu_vec[idx] = mu.detach().clone()
+            std_vec[idx] = std.detach().clone()
 
         if grad:
             return mu_vec[:idx], std_vec[:idx]

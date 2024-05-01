@@ -209,7 +209,7 @@ class CLUE(BaseNet):
 
         x = self.VAE.regenerate(self.z, grad=False)
         x_vec.append(x)
-        x_vec = [i.cpu().numpy() for i in x_vec]  # convert x to numpy
+        x_vec = [i.detach().cpu().numpy() for i in x_vec]  # convert x to numpy
         x_vec = np.stack(x_vec)
         z_vec = np.stack(z_vec)
 
