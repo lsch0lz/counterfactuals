@@ -162,3 +162,5 @@ cython_debug/
 .DS_Store
 datalaw_school_cf_test.csv
 datalaw_school_cf_train.csv
+counterfactual_xai/utils/clue/bnn/law_school_cf_test.csv
+counterfactual_xai/utils/clue/bnn/law_school_cf_train.csv
