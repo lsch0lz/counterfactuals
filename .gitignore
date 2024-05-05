@@ -159,3 +159,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 /data/
+.DS_Store
+datalaw_school_cf_test.csv
+datalaw_school_cf_train.csv
+counterfactual_xai/utils/clue/bnn/law_school_cf_test.csv
+counterfactual_xai/utils/clue/bnn/law_school_cf_train.csv

@@ -54,7 +54,7 @@ class RMSCatLoglike(nn.Module):
             if dims == 1:
                 # Gaussian_case
                 log_prob_vec.append(-self.mse(x[:, cum_dims], y[:, idx]).unsqueeze(1))
-                cum_dims += 1
+                cum_dims = cum_dims + 1
             elif dims > 1:
                 if x.shape[1] == y.shape[1]:
                     raise Exception('Input and target seem to be in flat format. Need integer cat targets.')
@@ -64,7 +64,7 @@ class RMSCatLoglike(nn.Module):
                     tget = y[:, idx].type(torch.LongTensor)
 
                 log_prob_vec.append(-self.ce(x[:, cum_dims:cum_dims + dims], tget).unsqueeze(1))
-                cum_dims += dims
+                cum_dims = cum_dims + dims
             else:
                 raise ValueError('Error, invalid dimension value')
 

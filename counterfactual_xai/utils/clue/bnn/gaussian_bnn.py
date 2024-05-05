@@ -73,7 +73,7 @@ class GaussianBNN(BaseNet):
 
         self.optimizer.step(burn_in=burn_in, resample_momentum=resample_momentum, resample_prior=resample_prior)
 
-        return loss.data * x.shape[0] / self.N_train, mu.data, sigma.data
+        return loss * x.shape[0] / self.N_train, mu, sigma
 
     def eval(self, x, y):
         self.set_model_mode(train=False)
@@ -82,7 +82,7 @@ class GaussianBNN(BaseNet):
         sigma = sigma.clamp(min=self.eps)
         loss = -diagonal_gauss_loglike(y, mu, sigma).mean(dim=0) * self.N_train
 
-        return loss.data * x.shape[0] / self.N_train, mu.data, sigma.data
+        return loss * x.shape[0] / self.N_train, mu, sigma
 
     @staticmethod
     def unnormalised_eval(pred_mu, pred_std, y, y_mu, y_std, gmm=False):
@@ -96,7 +96,7 @@ class GaussianBNN(BaseNet):
         self.set_model_mode(train=False)
         x, = variable_to_tensor_list(variables=(x,), cuda=self.cuda)
         mu, sigma = self.model(x)
-        return mu.data, sigma.data
+        return mu, sigma
 
     def save_sampled_net(self, max_samples):
 
@@ -111,12 +111,6 @@ class GaussianBNN(BaseNet):
         return None
 
     def sample_predict(self, x, num_samples, grad=False):
-        # self.weight_set_samples seems to be empty, thus num_samples = 0
-        # mu_vec and std_vec have the shape of (0, 2048, 1) --> shouldn't be 0 I think
-        # iterating over self.weight_set_samples isn't possible, because it's 0
-        # model is not loaded because of this
-        # mu_vec and std_vec are zero after loop, thus error in Line 144 (mu_vec has no indices)
-        # TODO: Train BNN on 2200 Epochs
         self.set_model_mode(train=False)
         if num_samples == 0:
             num_samples = len(self.weight_set_samples)
@@ -128,21 +122,24 @@ class GaussianBNN(BaseNet):
             if not x.requires_grad:
                 x.requires_grad = True
 
-        mu_vec = x.data.new(num_samples, x.shape[0], self.model.output_dim)
-        std_vec = x.data.new(num_samples, x.shape[0], self.model.output_dim)
+        mu_vec = x.new(num_samples, x.shape[0], self.model.output_dim)
+        std_vec = x.new(num_samples, x.shape[0], self.model.output_dim)
 
         # iterate over all saved weight configuration samples
+        # TODO: mu_vec and std_vec are changed here, prove that the value isnt changed inplace
         for idx, weight_dict in enumerate(self.weight_set_samples):
             if idx == num_samples:
                 break
             self.model.load_state_dict(weight_dict)
-            mu_vec[idx], std_vec[idx] = self.model(x)
+            mu, std = self.model(x)
+
+            mu_vec[idx] = mu.detach().clone()
+            std_vec[idx] = std.detach().clone()
 
         if grad:
             return mu_vec[:idx], std_vec[:idx]
         else:
-            # TODO: Here idx error
-            return mu_vec[:idx].data, std_vec[:idx].data
+            return mu_vec[:idx], std_vec[:idx]
 
     def get_weight_samples(self, Nsamples=0):
         weight_vec = []
@@ -156,7 +153,7 @@ class GaussianBNN(BaseNet):
 
             for key in state_dict.keys():
                 if 'weight' in key:
-                    weight_mtx = state_dict[key].cpu().data
+                    weight_mtx = state_dict[key].cpu()
                     for weight in weight_mtx.view(-1):
                         weight_vec.append(weight)
 

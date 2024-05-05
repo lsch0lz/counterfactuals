@@ -3,12 +3,12 @@ import torch
 from torch import nn
 from torch.backends import cudnn
 from torch.distributions import kl_divergence
-from torch.optim import RAdam
 from torch.distributions.normal import Normal
 
 from counterfactual_xai.utils.base_model import BaseNet
 from counterfactual_xai.utils.clue.bnn.utils import variable_to_tensor_list
 from counterfactual_xai.utils.clue.vae.models import MLPPreactRecognitionNetwork, MLPPreactGeneratorNetwork, RMSCatLoglike
+from counterfactual_xai.utils.clue.vae.radam import RAdam
 from counterfactual_xai.utils.clue.vae.utils import gauss_cat_to_flat, flat_to_gauss_cat, normal_parse_params, selective_softmax
 
 
@@ -19,7 +19,7 @@ class VAEGaussianCat(nn.Module):
         input_dim = 0
         self.input_dim_vec = input_dim_vec
         for e in input_dim_vec:
-            input_dim += e
+            input_dim = input_dim + e
 
         self.encoder = MLPPreactRecognitionNetwork(input_dim, width, depth, latent_dim)
         if pred_sig:
@@ -81,7 +81,7 @@ class GaussianVAE(BaseNet):
         self.input_dim = 0
         self.input_dim_vec = input_dim_vec
         for e in self.input_dim_vec:
-            self.input_dim += e
+            self.input_dim = self.input_dim + e
         self.flatten = flatten
         if not self.flatten:
             pass
