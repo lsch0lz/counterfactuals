@@ -31,6 +31,14 @@ class MimiDataLoader:
         """This is for our cat_Gauss VAE model"""
         return np.concatenate([np.full(shape=i, fill_value=i) for i in self.input_dims])
 
+    def _X_dims_to_input_dim_vec(self, X_dims):
+        """This is for our cat_Gauss VAE model"""
+        input_dim_vec = []
+        i = 0
+        while i < len(X_dims):
+            input_dim_vec.append(X_dims[i])
+            i += X_dims[i]
+        return np.array(input_dim_vec)
     def get_mimic_dataset(self):
         df_train: DataFrame = pd.read_csv(self.csv_path + self.MIMIC_TRAIN_FILE)
         data_train = df_train.to_dict("list")
@@ -40,6 +48,7 @@ class MimiDataLoader:
         data_test = df_test.to_dict("list")
 
         X_dimensions = self._input_dim_vec_to_X_dims()
+        input_dims = self._X_dims_to_input_dim_vec(X_dimensions)
 
         X_train = np.empty((len(data_train[train_keys[0]]), len(self.DATA_KEYS)))
         X_test = np.empty((len(data_test[train_keys[0]]), len(self.DATA_KEYS)))
@@ -72,5 +81,5 @@ class MimiDataLoader:
         y_train = ((y_train - y_means) / y_stds).astype(np.float32)
         y_test = ((y_test - y_means) / y_stds).astype(np.float32)
 
-        return x_train, x_test, x_means, x_stds, y_train, y_test, y_means, y_stds, self.DATA_KEYS, self.input_dims
+        return x_train, x_test, x_means, x_stds, y_train, y_test, y_means, y_stds, self.DATA_KEYS, input_dims
 
