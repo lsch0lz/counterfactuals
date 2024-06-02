@@ -67,7 +67,7 @@ def gen_bar_plot(labels, data, title=None, xlabel=None, ylabel=None, probs=False
         data = data[sort_idx]
 
     if ax == None:
-        plt.figure(dpi=dpi)
+        plt.figure(dpi=dpi, figsize=(20, 12))  # Increased figure size
         ax = plt.gca()
 
     fst = 15
@@ -81,8 +81,10 @@ def gen_bar_plot(labels, data, title=None, xlabel=None, ylabel=None, probs=False
     if hor:
         ax.barh(labels, data, 0.8, color=c)
         ax.invert_yaxis()
+        ax.set_yticklabels(labels, fontsize=fs)  # Set y-tick label size
     else:
         ax.bar(labels, data, color=c)
+        ax.set_xticklabels(labels, fontsize=fs, rotation=45, ha='right')  # Rotate x-tick labels
 
     ax.xaxis.grid(alpha=0.35)
     ax.yaxis.grid(alpha=0.35)
