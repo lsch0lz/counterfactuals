@@ -4,8 +4,8 @@ from pandas import DataFrame
 
 
 class MimiDataLoader:
-    MIMIC_TEST_FILE = "test_mort_icu.csv"
-    MIMIC_TRAIN_FILE = "train_mort_icu.csv"
+    MIMIC_TEST_FILE = "test_mort_icu_cleaned.csv"
+    MIMIC_TRAIN_FILE = "train_mort_icu_cleaned.csv"
 
     TARGET_KEY = "mort_icu"
     DATA_KEYS = ["age", "max_hours", "vent", "vaso", "adenosine", "dobutamine", "dopamine", "epinephrine", "isuprel",
@@ -62,7 +62,6 @@ class MimiDataLoader:
 
         x_means, x_stds = X_train.mean(axis=0), X_train.std(axis=0)
 
-        """
         # Adjust x_means and x_stds for specific dimensions
         x_means_adjusted = np.copy(x_means)
         x_stds_adjusted = np.copy(x_stds)
@@ -75,13 +74,12 @@ class MimiDataLoader:
 
         x_train = ((X_train - x_means_adjusted) / x_stds_adjusted).astype(np.float32)
         x_test = ((X_test - x_means_adjusted) / x_stds_adjusted).astype(np.float32)
-        """
 
         y_means, y_stds = y_train.mean(axis=0), y_train.std(axis=0)
         y_stds[y_stds < 1e-10] = 1
 
-        # y_train = ((y_train - y_means) / y_stds).astype(np.float32)
-        # y_test = ((y_test - y_means) / y_stds).astype(np.float32)
+        y_train = ((y_train - y_means) / y_stds).astype(np.float32)
+        y_test = ((y_test - y_means) / y_stds).astype(np.float32)
 
-        return X_train, X_test, x_means, x_stds, y_train, y_test, y_means, y_stds, self.DATA_KEYS, input_dims
+        return x_train, x_test, x_means, x_stds, y_train, y_test, y_means, y_stds, self.DATA_KEYS, input_dims
 
