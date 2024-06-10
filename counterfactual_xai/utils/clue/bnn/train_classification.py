@@ -15,6 +15,7 @@ def train_BNN_classification(net, name, batch_size, nb_epochs, trainset, valset,
     results_dir = name + '_results'
     mkdir(models_dir)
     mkdir(results_dir)
+    cuda = False
 
     if cuda:
         trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, pin_memory=True,

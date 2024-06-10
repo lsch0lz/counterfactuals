@@ -52,7 +52,7 @@ class GaussianBNN(BaseNet):
         self.optimizer = StochasticHamiltonMonteCarloSampler(params=self.model.parameters(), lr=self.lr, base_C=0.05, gauss_sig=0.1)
 
     def fit(self, x, y, burn_in=False, resample_momentum=False, resample_prior=False):
-        self.set_model_mode(train=True)
+        self.set_mode_train(train=True)
         x, y = variable_to_tensor_list(variables=(x, y), cuda=self.cuda)
 
         self.optimizer.zero_grad()
@@ -77,7 +77,7 @@ class GaussianBNN(BaseNet):
         return loss * x.shape[0] / self.N_train, mu, sigma
 
     def eval(self, x, y):
-        self.set_model_mode(train=False)
+        self.set_mode_train(train=False)
         x, y = variable_to_tensor_list(variables=(x, y), cuda=self.cuda)
         mu, sigma = self.model(x)
         sigma = sigma.clamp(min=self.eps)
@@ -94,7 +94,7 @@ class GaussianBNN(BaseNet):
         return rms, ll
 
     def predict(self, x):
-        self.set_model_mode(train=False)
+        self.set_mode_train(train=False)
         x, = variable_to_tensor_list(variables=(x,), cuda=self.cuda)
         mu, sigma = self.model(x)
         return mu, sigma
@@ -112,7 +112,7 @@ class GaussianBNN(BaseNet):
         return None
 
     def sample_predict(self, x, num_samples, grad=False):
-        self.set_model_mode(train=False)
+        self.set_mode_train(train=False)
         if num_samples == 0:
             num_samples = len(self.weight_set_samples)
 
@@ -210,8 +210,8 @@ class BNNCategorical(BaseNet):  # for categorical distributions
         self.optimizer = StochasticHamiltonMonteCarloSampler(params=self.model.parameters(), lr=self.lr, base_C=0.05, gauss_sig=0.1)  # this last parameter does nothing
 
     def fit(self, x, y, burn_in=False, resample_momentum=False, resample_prior=False):
-        self.set_model_mode(train=True)
-        x, y = variable_to_tensor_list(variables=(x, y.long), cuda=self.cuda)
+        self.set_mode_train(train=True)
+        x, y = variable_to_tensor_list(variables=(x, y), cuda=self.cuda)
         self.optimizer.zero_grad()
         out = self.model(x)
         loss = F.cross_entropy(out, y, reduction='mean')
@@ -236,8 +236,8 @@ class BNNCategorical(BaseNet):  # for categorical distributions
         return loss.data * x.shape[0] / self.N_train, err
 
     def eval(self, x, y, train=False):
-        self.set_model_mode(train=False)
-        x, y = variable_to_tensor_list(variables=(x, y.long()), cuda=self.cuda)
+        self.set_mode_train(train=False)
+        x, y = variable_to_tensor_list(variables=(x, y), cuda=self.cuda)
 
         out = self.model(x)
         loss = F.cross_entropy(out, y, reduction='sum')
@@ -259,7 +259,7 @@ class BNNCategorical(BaseNet):  # for categorical distributions
         return None
 
     def predict(self, x):
-        self.set_model_mode(train=False)
+        self.set_mode_train(train=False)
         x, = variable_to_tensor_list(variables=(x, ), cuda=self.cuda)
         out = self.model(x)
         probs = F.softmax(out, dim=1).data.cpu()
@@ -267,7 +267,7 @@ class BNNCategorical(BaseNet):  # for categorical distributions
 
     def sample_predict(self, x, Nsamples, grad=False):
         """return predictions using multiple samples from posterior"""
-        self.set_model_mode(train=False)
+        self.set_mode_train(train=False)
         if Nsamples == 0:
             Nsamples = len(self.weight_set_samples)
         x, = variable_to_tensor_list(variables=(x, ), cuda=self.cuda)

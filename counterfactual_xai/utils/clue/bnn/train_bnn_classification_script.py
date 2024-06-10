@@ -9,7 +9,7 @@ from counterfactual_xai.utils.clue.bnn.train_classification import train_BNN_cla
 dname = 'compas'
 
 INPUT_DIMS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 41]
-CSV_PATH = "./../data/"
+CSV_PATH = "/vol/fob-vol5/mi22/scholuka/repositorys/counterfactuals/data/cleaned/"
 
 x_train, x_test, x_means, x_stds, y_train, y_test, y_means, y_stds, DATA_KEYS, input_dims = MimiDataLoader(INPUT_DIMS,
                                                                                                            CSV_PATH).get_mimic_dataset()
@@ -46,10 +46,10 @@ re_burn = 1e7
 
 nb_its_dev = 10
 
-cuda = torch.cuda.is_available()
+cuda = False
 net = BNNCategorical(model, N_train, lr=lr, cuda=cuda)
 
-save_dir = '../saves/fc_BNN_NEW_' + dname
+save_dir = "/vol/fob-vol5/mi22/scholuka/repositorys/counterfactuals/data/results/"
 
 cost_train, cost_dev, err_train, err_dev = train_BNN_classification(net, save_dir, batch_size,
                          nb_epochs, trainset, valset, cuda,
