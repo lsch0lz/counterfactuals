@@ -116,7 +116,7 @@ class GaussianVAE(BaseNet):
         self.optimizer = RAdam(self.model.parameters(), lr=self.lr)
 
     def fit(self, x):
-        self.set_model_mode(train=True)
+        self.set_mode_train(train=True)
 
         if self.flatten:
             x_flat = gauss_cat_to_flat(x, self.input_dim_vec)
@@ -140,7 +140,7 @@ class GaussianVAE(BaseNet):
         return vlb.mean().item(), rec_params
 
     def eval(self, x, sample=False):
-        self.set_model_mode(train=False)
+        self.set_mode_train(train=False)
 
         if self.flatten:
             x_flat = gauss_cat_to_flat(x, self.input_dim_vec)
@@ -161,7 +161,7 @@ class GaussianVAE(BaseNet):
         return vlb.mean().item(), rec_params
 
     def eval_iw(self, x, k=50):
-        self.set_model_mode(train=False)
+        self.set_mode_train(train=False)
         if self.flatten:
             x_flat = gauss_cat_to_flat(x, self.input_dim_vec)
         else:
@@ -180,7 +180,7 @@ class GaussianVAE(BaseNet):
             flatten = self.flatten
         if flatten and grad:
             raise Exception('flatten and grad options are not compatible')
-        self.set_model_mode(train=False)
+        self.set_mode_train(train=False)
         if flatten:
             x = gauss_cat_to_flat(x, self.input_dim_vec)
         if grad:
@@ -194,7 +194,7 @@ class GaussianVAE(BaseNet):
     def regenerate(self, z, grad=False, unflatten=False):
         if unflatten and grad:
             raise Exception('flatten and grad options are not compatible')
-        self.set_model_mode(train=False)
+        self.set_mode_train(train=False)
         if grad:
             if not z.requires_grad:
                 z.requires_grad = True

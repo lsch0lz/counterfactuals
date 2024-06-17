@@ -23,8 +23,8 @@ class CLUE(BaseNet):
         # Load models
         self.VAE = VAE
         self.BNN = BNN
-        self.BNN.set_model_mode(train=False)
-        self.VAE.set_model_mode(train=False)
+        self.BNN.set_mode_train(train=False)
+        self.VAE.set_mode_train(train=False)
 
         # Objective function definition
         self.uncertainty_weight = uncertainty_weight
