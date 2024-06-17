@@ -143,14 +143,14 @@ class GaussianBNN(BaseNet):
         else:
             return mu_vec[:idx], std_vec[:idx]
 
-    def get_weight_samples(self, Nsamples=0):
+    def get_weight_samples(self, num_samples=0):
         weight_vec = []
 
-        if Nsamples == 0 or Nsamples > len(self.weight_set_samples):
-            Nsamples = len(self.weight_set_samples)
+        if num_samples == 0 or num_samples > len(self.weight_set_samples):
+            num_samples = len(self.weight_set_samples)
 
         for idx, state_dict in enumerate(self.weight_set_samples):
-            if idx == Nsamples:
+            if idx == num_samples:
                 break
 
             for key in state_dict.keys():
@@ -265,11 +265,11 @@ class BNNCategorical(BaseNet):  # for categorical distributions
         probs = F.softmax(out, dim=1).data.cpu()
         return probs.data
 
-    def sample_predict(self, x, Nsamples, grad=False):
+    def sample_predict(self, x, num_samples, grad=False):
         """return predictions using multiple samples from posterior"""
         self.set_mode_train(train=False)
-        if Nsamples == 0:
-            Nsamples = len(self.weight_set_samples)
+        if num_samples == 0:
+            num_samples = len(self.weight_set_samples)
         x, = variable_to_tensor_list(variables=(x, ), cuda=self.cuda)
 
         if grad:
@@ -277,14 +277,15 @@ class BNNCategorical(BaseNet):  # for categorical distributions
             if not x.requires_grad:
                 x.requires_grad = True
 
-        out = x.data.new(Nsamples, x.shape[0], self.model.output_dim)
+        out = x.data.new(num_samples, x.shape[0], self.model.output_dim)
 
         # iterate over all saved weight configuration samples
         for idx, weight_dict in enumerate(self.weight_set_samples):
-            if idx == Nsamples:
+            if idx == num_samples:
                 break
             self.model.load_state_dict(weight_dict)
-            out[idx] = self.model(x)
+            out_idx = self.model(x)
+            out[idx] = out_idx.detach().clone()
 
         out = out[:idx]
         prob_out = F.softmax(out, dim=2)
@@ -294,15 +295,15 @@ class BNNCategorical(BaseNet):  # for categorical distributions
         else:
             return prob_out.data
 
-    def get_weight_samples(self, Nsamples=0):
+    def get_weight_samples(self, num_samples=0):
         """return weight samples from posterior in a single-column array"""
         weight_vec = []
 
-        if Nsamples == 0 or Nsamples > len(self.weight_set_samples):
-            Nsamples = len(self.weight_set_samples)
+        if num_samples == 0 or num_samples > len(self.weight_set_samples):
+            num_samples = len(self.weight_set_samples)
 
         for idx, state_dict in enumerate(self.weight_set_samples):
-            if idx == Nsamples:
+            if idx == num_samples:
                 break
 
             for key in state_dict.keys():

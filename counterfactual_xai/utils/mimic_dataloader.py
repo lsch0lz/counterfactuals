@@ -4,11 +4,11 @@ from pandas import DataFrame
 
 
 class MimiDataLoader:
-    MIMIC_TEST_FILE = "test_mort_icu_cleaned.csv"
-    MIMIC_TRAIN_FILE = "train_mort_icu_cleaned.csv"
+    MIMIC_TEST_FILE = "test_length_of_stay_prediction.csv"
+    MIMIC_TRAIN_FILE = "train_length_of_stay_prediction.csv"
 
-    TARGET_KEY = "mort_icu"
-    DATA_KEYS = ["age", "max_hours", "vent", "vaso", "adenosine", "dobutamine", "dopamine", "epinephrine", "isuprel",
+    TARGET_KEY = "max_hours"
+    DATA_KEYS = ["age", "vent", "vaso", "adenosine", "dobutamine", "dopamine", "epinephrine", "isuprel",
                  "milrinone", "norepinephrine", "phenylephrine", "vasopressin", "colloid_bolus", "crystalloid_bolus", "nivdurations", "gender_F",
                  "gender_M", "ethnicity_AMERICAN INDIAN/ALASKA NATIVE", "ethnicity_AMERICAN INDIAN/ALASKA NATIVE FEDERALLY RECOGNIZED TRIBE",
                  "ethnicity_ASIAN", "ethnicity_ASIAN - ASIAN INDIAN", "ethnicity_ASIAN - CAMBODIAN", "ethnicity_ASIAN - CHINESE",
@@ -81,5 +81,5 @@ class MimiDataLoader:
         y_train = ((y_train - y_means) / y_stds).astype(np.float32)
         y_test = ((y_test - y_means) / y_stds).astype(np.float32)
 
-        return x_train, x_test, x_means, x_stds, y_train, y_test, y_means, y_stds, self.DATA_KEYS, input_dims
+        return x_train, x_test, x_means_adjusted, x_stds_adjusted, y_train, y_test, y_means, y_stds, self.DATA_KEYS, input_dims
 
