@@ -38,7 +38,7 @@ def train_VAE(net, name, batch_size, nb_epochs, trainset, valset, cuda, flat_ims
 
     tic0 = time.time()
     for i in range(epoch, nb_epochs):
-        # net.set_model_mode(True)
+        net.set_mode_train(True)
 
         nb_samples = 0
         for x, y in trainloader:
