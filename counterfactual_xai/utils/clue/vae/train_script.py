@@ -9,8 +9,11 @@ import numpy as np
 # with hadm_id and mort_hosp
 # INPUT_DIMS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 41]
 
-INPUT_DIMS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 41]
-CSV_PATH = "/vol/fob-vol5/mi22/scholuka/repositorys/counterfactuals/data/cleaned/"
+# MORT_ICU Prediction
+# INPUT_DIMS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 41]
+# LOS Prediction
+INPUT_DIMS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 41]
+CSV_PATH = "/vol/fob-vol5/mi22/scholuka/repositorys/counterfactuals/data/"
 
 width = 300
 depth = 3

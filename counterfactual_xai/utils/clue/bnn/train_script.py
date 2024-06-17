@@ -6,13 +6,16 @@ from counterfactual_xai.utils.lsat_dataloader.lsat_dataloader import LsatDataloa
 from counterfactual_xai.utils.datafeed import DataFeed
 from counterfactual_xai.utils.clue.gaussian_mlp import GaussianMLP
 from counterfactual_xai.utils.clue.bnn.gaussian_bnn import GaussianBNN
-from counterfactual_xai.utils.clue.bnn.train import train_BNN_regression
+from counterfactual_xai.utils.clue.bnn.train_regression import train_BNN_regression
 
-CSV_PATH = "/vol/fob-vol5/mi22/scholuka/repositorys/counterfactuals/data/cleaned/"
+CSV_PATH = "/vol/fob-vol5/mi22/scholuka/repositorys/counterfactuals/data/"
 
 # With hadm_id and mort_hosp
 # INPUT_DIMS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 41]
-INPUT_DIMS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 41]
+# MORT_ICU Prediction
+# INPUT_DIMS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 41]
+# LOS Prediction
+INPUT_DIMS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 41]
 
 x_train, x_test, x_means, x_stds, y_train, y_test, y_means, y_stds, DATA_KEYS, input_dims = MimiDataLoader(INPUT_DIMS,
                                                                                                            CSV_PATH).get_mimic_dataset()
