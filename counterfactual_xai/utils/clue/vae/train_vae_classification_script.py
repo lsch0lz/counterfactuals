@@ -43,7 +43,7 @@ def main():
         lr = 1e-4
         early_stop = 200
 
-        cuda = torch.cuda.is_available()
+        cuda = False
 
         net = GaussianVAE(input_dim_vec, width, depth, latent_dim, pred_sig=False, lr=lr, cuda=cuda, flatten=False)
 

@@ -104,45 +104,4 @@ def train_BNN_classification(net, name, batch_size, nb_epochs, trainset, valset,
     ## SAVE WEIGHTS
     net.save_weights(models_dir + '/state_dicts.pkl')
 
-    ## ---------------------------------------------------------------------------------------------------------------------
-    # fig cost vs its
-    textsize = 15
-    marker = 5
-
-    plt.figure(dpi=100)
-    fig, ax1 = plt.subplots()
-    ax1.plot(range(0, nb_epochs, nb_its_dev), np.clip(cost_dev[::nb_its_dev], a_min=-5, a_max=5), 'b-')
-    ax1.plot(np.clip(cost_train, a_min=-5, a_max=5), 'r--')
-    ax1.set_ylabel('Cross Entropy')
-    plt.xlabel('epoch')
-    plt.grid(b=True, which='major', color='k', linestyle='-')
-    plt.grid(b=True, which='minor', color='k', linestyle='--')
-    lgd = plt.legend(['test error', 'train error'], markerscale=marker, prop={'size': textsize, 'weight': 'normal'})
-    ax = plt.gca()
-    plt.title('classification costs')
-    for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
-                 ax.get_xticklabels() + ax.get_yticklabels()):
-        item.set_fontsize(textsize)
-        item.set_weight('normal')
-    plt.savefig(results_dir + '/cost.png', bbox_extra_artists=(lgd,), bbox_inches='tight')
-
-    plt.figure(dpi=100)
-    fig2, ax2 = plt.subplots()
-    ax2.set_ylabel('% error')
-    ax2.semilogy(range(0, nb_epochs, nb_its_dev), err_dev[::nb_its_dev], 'b-')
-    ax2.semilogy(err_train, 'r--')
-    ax2.set_ylim(top=1, bottom=1e-3)
-    plt.xlabel('epoch')
-    plt.grid(b=True, which='major', color='k', linestyle='-')
-    plt.grid(b=True, which='minor', color='k', linestyle='--')
-    ax2.get_yaxis().set_minor_formatter(matplotlib.ticker.ScalarFormatter())
-    ax2.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-    lgd = plt.legend(['test error', 'train error'], markerscale=marker, prop={'size': textsize, 'weight': 'normal'})
-    ax = plt.gca()
-    for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
-                 ax.get_xticklabels() + ax.get_yticklabels()):
-        item.set_fontsize(textsize)
-        item.set_weight('normal')
-    plt.savefig(results_dir + '/err.png', bbox_extra_artists=(lgd,), box_inches='tight')
-
     return cost_train, cost_dev, err_train, err_dev
