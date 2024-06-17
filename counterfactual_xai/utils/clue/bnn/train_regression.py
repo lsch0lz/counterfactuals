@@ -38,7 +38,7 @@ def train_BNN_regression(model, model_name, batch_size, epochs, trainset, valset
     best_cost = np.inf
 
     for i in range(epoch, epochs):
-        model.set_model_mode(True)
+        model.set_mode_train(True)
         num_samples = 0
 
         for x, y in trainloader:
