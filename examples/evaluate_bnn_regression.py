@@ -14,7 +14,7 @@ from counterfactual_xai.utils.mimic_dataloader import MimiDataLoader
 torch.manual_seed(1)
 
 CSV_PATH = "./../data/"
-SAVE_DIR = "/Users/lukasscholz/repositorys/studienprojekt/counterfactuals/data/mimic/regression/length_of_stay_regression/train_test_same/state_dicts.pkl"
+SAVE_DIR = "/Users/lukasscholz/repositorys/studienprojekt/counterfactuals/data/mimic/regression/length_of_stay_regression/adjusted_mean_as_return_type/state_dicts.pkl"
 CUDA = False
 # MORT_ICU
 # INPUT_DIMS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 41]
@@ -22,8 +22,8 @@ CUDA = False
 INPUT_DIMS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 41]
 LEARNING_RATE = 1e-2
 
-x_train, x_test, x_means, x_stds, y_train, y_test, y_means, y_stds, DATA_KEYS, input_dims = MimiDataLoader(INPUT_DIMS,
-                                                                                                           CSV_PATH).get_mimic_dataset()
+x_train, x_test, x_means_adjusted, x_stds_adjusted, y_train, y_test, y_means, y_stds, DATA_KEYS, input_dims = MimiDataLoader(INPUT_DIMS,
+                                                                                                                             CSV_PATH).get_mimic_dataset()
 
 trainset = DataFeed(x_train, y_train, transform=None)
 valset = DataFeed(x_test, y_test, transform=None)
@@ -51,7 +51,7 @@ for idx, row in df_test.iterrows():
 
     # Normalize the input data
     train_sample = np.array(train_sample)
-    x_input = (train_sample - x_means) / x_stds
+    x_input = (train_sample - x_means_adjusted) / x_stds_adjusted
     x_input = x_input.astype(np.float32)
 
     x_input = torch.tensor(x_input).unsqueeze(0)
