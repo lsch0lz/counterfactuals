@@ -72,14 +72,14 @@ class MimiDataLoader:
 
         x_stds_adjusted[x_stds_adjusted < 1e-10] = 1
 
-        # x_train = ((X_train - x_means_adjusted) / x_stds_adjusted).astype(np.float32)
-        # x_test = ((X_test - x_means_adjusted) / x_stds_adjusted).astype(np.float32)
+        x_train = ((X_train - x_means_adjusted) / x_stds_adjusted).astype(np.float32)
+        x_test = ((X_test - x_means_adjusted) / x_stds_adjusted).astype(np.float32)
 
         y_means, y_stds = y_train.mean(axis=0), y_train.std(axis=0)
         y_stds[y_stds < 1e-10] = 1
 
-        # y_train = ((y_train - y_means) / y_stds).astype(np.float32)
-        # y_test = ((y_test - y_means) / y_stds).astype(np.float32)
+        y_train = ((y_train - y_means) / y_stds).astype(np.float32)
+        y_test = ((y_test - y_means) / y_stds).astype(np.float32)
 
-        return X_train, X_test, x_means_adjusted, x_stds_adjusted, y_train, y_test, y_means, y_stds, self.DATA_KEYS, input_dims
+        return x_train, x_test, x_means_adjusted, x_stds_adjusted, y_train, y_test, y_means, y_stds, self.DATA_KEYS, input_dims
 
