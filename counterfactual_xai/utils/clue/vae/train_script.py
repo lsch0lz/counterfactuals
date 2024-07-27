@@ -5,29 +5,44 @@ from counterfactual_xai.utils.mimic_dataloader import MimiDataLoader
 from counterfactual_xai.utils.lsat_dataloader import LsatDataloader  
 import torch
 import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
-# with hadm_id and mort_hosp
-# INPUT_DIMS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 41]
-
-# MORT_ICU Prediction
-# INPUT_DIMS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 41]
-# LOS Prediction
-INPUT_DIMS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 41]
 CSV_PATH = "/vol/fob-vol5/mi22/scholuka/repositorys/counterfactuals/data/"
 
 width = 300
 depth = 3
 latent_dim = 4
 
-x_train, x_test, x_means, x_stds, y_train, y_test, y_means, y_stds, my_data_keys, input_dim_vec = MimiDataLoader(
-    INPUT_DIMS, CSV_PATH).get_mimic_dataset()
+input_dim_vec = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 29]
+df_clean = pd.read_csv("/vol/fob-vol5/mi22/scholuka/repositorys/counterfactuals/data/los_prediction.csv")
+
+LOS = df_clean['LOS'].values
+# Prediction Features
+features = df_clean.drop(columns=['LOS'])
+
+x_train, x_test, y_train, y_test = train_test_split(features,
+                                                    LOS,
+                                                    test_size=.20,
+                                                    random_state=0)
+
+x_train = x_train.to_numpy()
+x_test = x_test.to_numpy()
+
+x_train = x_train.astype(np.float32)
+x_test = x_test.astype(np.float32)
+
+# x_train = torch.tensor(x_train)
+# x_test = torch.tensor(x_test)
+
+y_means = y_train.mean()
+y_stds = y_train.std()
 
 print('MIMIC', x_train.shape, x_test.shape)
 print(input_dim_vec)
 print(f"X TRAIN: {x_train}")
 print(f"-------------------------------------")
 print(f"Y TRAIN: {y_train}")
-# input_dim = x_train.shape[1]
 
 for latent_dim in [2, 3, 4, 5, 6, 8, 12, 16]:
     trainset = DataFeed(x_train, x_train, transform=None)

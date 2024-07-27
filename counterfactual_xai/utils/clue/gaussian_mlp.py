@@ -24,6 +24,8 @@ class GaussianMLP(nn.Module):
         if self.flatten_image:
             x = x.view(-1, self.input_dim)
         x = self.block(x)
+        if x.dim() == 1:
+            x = x.unsqueeze(0)
         mu = x[:, :self.output_dim]
         sigma = F.softplus(x[:, self.output_dim:])
 
