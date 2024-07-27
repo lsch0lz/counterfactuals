@@ -24,7 +24,7 @@ def variable_to_tensor_list(variables: Tuple, cuda=True, volatile=False):
 def diagonal_gauss_loglike(x, mu, sigma):
     # note that we can just treat each dim as isotropic and then do sum
     cte_term = -0.5 * np.log(2 * np.pi)
-    det_sig_term = -torch.log(sigma)
+    det_sig_term = -torch.log(torch.tensor(sigma))
     inner = (x - mu) / sigma
     dist_term = -(0.5) * (inner ** 2)
     log_px = (cte_term + det_sig_term + dist_term).sum(dim=1, keepdim=False)
@@ -45,9 +45,9 @@ def gaussian_mixutre_model_likelihood(x, mu_vec, sigma_vec):
 
 
 def gaussian_mixture_model_loglike(mu, sigma, y, y_means, y_stds, gmm=False):
-    mu_un = mu * y_stds + y_means
+    mu_un = mu.detach().numpy() * y_stds + y_means
     y_un = y * y_stds + y_means
-    sigma_un = sigma * y_stds
+    sigma_un = sigma.detach().numpy() * y_stds
     if gmm:
         ll = gaussian_mixutre_model_likelihood(y_un, mu_un, sigma_un)
     else:

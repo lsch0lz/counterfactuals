@@ -1,10 +1,9 @@
 from torch import nn
-import torch.nn.functional as F
 
 
-class GaussianMLP(nn.Module):
+class MLP(nn.Module):
     def __init__(self, input_dim, width, depth, output_dim, flatten_image):
-        super(GaussianMLP, self).__init__()
+        super(MLP, self).__init__()
 
         self.input_dim = input_dim
         self.output_dim = output_dim
@@ -16,17 +15,11 @@ class GaussianMLP(nn.Module):
         for i in range(depth - 1):
             layers.append(nn.Linear(width, width))
             layers.append(nn.ReLU())
-        layers.append(nn.Linear(width, 2 * output_dim))
+        layers.append(nn.Linear(width, output_dim))
 
         self.block = nn.Sequential(*layers)
 
     def forward(self, x):
         if self.flatten_image:
             x = x.view(-1, self.input_dim)
-        x = self.block(x)
-        if x.dim() == 1:
-            x = x.unsqueeze(0)
-        mu = x[:, :self.output_dim]
-        sigma = F.softplus(x[:, self.output_dim:])
-
-        return mu, sigma
+        return self.block(x)

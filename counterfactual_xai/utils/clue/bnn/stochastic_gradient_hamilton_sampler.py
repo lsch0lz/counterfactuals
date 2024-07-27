@@ -81,6 +81,7 @@ class StochasticHamiltonMonteCarloSampler(Optimizer):
 
                 # update parameters during burn-in
                 if burn_in:  # We update g first as it makes most sense
+                    # INPLACE ADDING HERE NORMALLY
                     tau.add(-tau * (g ** 2) / (V_hat + self.eps) + 1)  # specifies the moving average window, see Eq 9 in [1] left
                     tau_inv = 1. / (tau + self.eps)
                     g.add(-tau_inv * g + tau_inv * d_p)  # average gradient see Eq 9 in [1] right
@@ -98,9 +99,11 @@ class StochasticHamiltonMonteCarloSampler(Optimizer):
                 # sample random epsilon
                 noise_sample = torch.normal(mean=torch.zeros_like(d_p), std=torch.ones_like(d_p) * noise_std)
 
+                # INPLACE ADDING HERE NORMALLY
                 # update momentum (Eq 10 right in [1])
                 v_momentum.add(- (lr ** 2) * V_inv_sqrt * d_p - base_C * v_momentum + noise_sample)
 
+                # INPLACE ADDING HERE NORMALLY
                 # update theta (Eq 10 left in [1])
                 p.add(v_momentum)
                 # p.add_(v_momentum)

@@ -8,7 +8,7 @@ class BaseNet:
     def get_nb_parameters(self):
         return np.sum(p.numel() for p in self.model.parameters())
 
-    def set_model_mode(self, train=True):
+    def set_mode_train(self, train=True):
         if train:
             self.model.train()
         else:

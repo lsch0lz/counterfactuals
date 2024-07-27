@@ -6,6 +6,7 @@ from os import mkdir
 import torch
 import torch.utils.data
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def train_BNN_regression(model, model_name, batch_size, epochs, trainset, valset, cuda,
@@ -13,8 +14,8 @@ def train_BNN_regression(model, model_name, batch_size, epochs, trainset, valset
                          re_burn, flat_ims=False, nb_its_dev=1, y_mu=0, y_std=1):
     models_dir = model_name + '_models'
     results_dir = model_name + '_results'
-    mkdir(models_dir)
-    mkdir(results_dir)
+    # mkdir(models_dir)
+    # mkdir(results_dir)
 
     epoch = 0
     it_count = 0
@@ -38,7 +39,7 @@ def train_BNN_regression(model, model_name, batch_size, epochs, trainset, valset
     best_cost = np.inf
 
     for i in range(epoch, epochs):
-        model.set_model_mode(True)
+        model.set_mode_train(True)
         num_samples = 0
 
         for x, y in trainloader:
@@ -88,5 +89,56 @@ def train_BNN_regression(model, model_name, batch_size, epochs, trainset, valset
                 best_cost = cost_dev[i]
 
     model.save_weights(models_dir + '/state_dicts.pkl')
+
+    # fig cost vs its
+    textsize = 15
+    marker = 5
+
+    plt.figure(dpi=100)
+    fig, ax1 = plt.subplots()
+    ax1.plot(cost_train, 'r--')
+    ax1.plot(range(0, epochs, nb_its_dev), cost_dev[::nb_its_dev], 'b-')
+    ax1.set_ylabel('-loglike')
+    plt.xlabel('epoch')
+    plt.grid(b=True, which='major', color='k', linestyle='-')
+    plt.grid(b=True, which='minor', color='k', linestyle='--')
+    lgd = plt.legend(['train error', 'test error'], markerscale=marker, prop={'size': textsize, 'weight': 'normal'})
+    ax = plt.gca()
+    plt.title('train dev normalised ll')
+    for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
+                 ax.get_xticklabels() + ax.get_yticklabels()):
+        item.set_fontsize(textsize)
+        item.set_weight('normal')
+    plt.savefig(results_dir + '/cost.png', bbox_extra_artists=(lgd,), bbox_inches='tight')
+
+    plt.figure(dpi=100)
+    fig, ax1 = plt.subplots()
+    ax1.plot(range(0, epochs, nb_its_dev), ll_dev[::nb_its_dev], 'b-')
+    ax1.set_ylabel('-loglike')
+    plt.xlabel('epoch')
+    plt.grid(b=True, which='major', color='k', linestyle='-')
+    plt.grid(b=True, which='minor', color='k', linestyle='--')
+    ax = plt.gca()
+    plt.title('un-normalised')
+    for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
+                 ax.get_xticklabels() + ax.get_yticklabels()):
+        item.set_fontsize(textsize)
+        item.set_weight('normal')
+    plt.savefig(results_dir + '/ll.png', bbox_extra_artists=(lgd,), bbox_inches='tight')
+
+    plt.figure(dpi=100)
+    fig, ax1 = plt.subplots()
+    ax1.plot(range(0, nb_epochs, nb_its_dev), rms_dev[::nb_its_dev], 'b-')
+    ax1.set_ylabel('rms')
+    plt.xlabel('epoch')
+    plt.grid(b=True, which='major', color='k', linestyle='-')
+    plt.grid(b=True, which='minor', color='k', linestyle='--')
+    ax = plt.gca()
+    plt.title('un-normalised')
+    for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
+                 ax.get_xticklabels() + ax.get_yticklabels()):
+        item.set_fontsize(textsize)
+        item.set_weight('normal')
+    plt.savefig(results_dir + '/rms.png', bbox_extra_artists=(lgd,), bbox_inches='tight')
 
     return cost_train, cost_dev, rms_dev, ll_dev

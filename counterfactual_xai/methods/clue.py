@@ -23,8 +23,8 @@ class CLUE(BaseNet):
         # Load models
         self.VAE = VAE
         self.BNN = BNN
-        self.BNN.set_model_mode(train=False)
-        self.VAE.set_model_mode(train=False)
+        self.BNN.set_mode_train(train=False)
+        self.VAE.set_mode_train(train=False)
 
         # Objective function definition
         self.uncertainty_weight = uncertainty_weight
@@ -359,7 +359,7 @@ def decompose_std_gauss(mu, sigma, sum_dims=True):
         aleatoric_var = aleatoric_var.sum(dim=1)
         epistemic_var = epistemic_var.sum(dim=1)
         total_var = total_var.sum(dim=1)
-    return total_var.sqrt(), aleatoric_var.sqrt(), epistemic_var.sqrt()
+    return torch.square(total_var), torch.square(aleatoric_var), torch.square(epistemic_var)
 
 
 def decompose_entropy_cat(probs, eps=1e-10):
