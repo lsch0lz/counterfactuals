@@ -4,13 +4,17 @@ class DataFeed:
         self.targets = y_train
         self.transform = transform
 
-    def __getitem__(self, index):
+    """def __getitem__(self, index):
         img = self.data[index]
         if self.transform is not None:
             img = self.transform(img)
         if self.targets is not None:
             return img, self.targets[index]
         return img
+    """
+
+    def __getitem__(self, idx):
+        return self.data[idx], self.targets[idx]
 
     def __len__(self):
         return len(self.data)
