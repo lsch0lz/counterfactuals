@@ -164,3 +164,4 @@ datalaw_school_cf_test.csv
 datalaw_school_cf_train.csv
 counterfactual_xai/utils/clue/bnn/law_school_cf_test.csv
 counterfactual_xai/utils/clue/bnn/law_school_cf_train.csv
+/counterfactual_xai/utils/clue/bnn/wandb/run-20240729_151801-pqzqkmw8/files/conda-environment.yaml

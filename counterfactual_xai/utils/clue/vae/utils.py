@@ -54,6 +54,18 @@ def gauss_cat_to_flat(x, input_dim_vec):
             raise ValueError('Error, invalid dimension value')
     return torch.cat(output, dim=1)
 
+def gauss_cat_to_flat_mask(x, input_dim_vec):
+    output = []
+    for idx, dim in enumerate(input_dim_vec):
+        if dim == 1:
+            output.append(x[:, idx].unsqueeze(1))
+        elif dim > 1:
+            oh_vec = x.new_ones(x.shape[0], dim) * x[:, idx].unsqueeze(1)
+            output.append(oh_vec)
+        else:
+            raise ValueError('Error, invalid dimension value')
+    return torch.cat(output, dim=1)
+
 
 def flat_to_gauss_cat(x, input_dim_vec):
     output = []
